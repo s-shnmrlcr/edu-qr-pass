@@ -85,7 +85,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
             <p className="text-sm font-medium text-sidebar-foreground truncate">{currentUser.fullName}</p>
             <p className="text-xs text-sidebar-muted capitalize">{currentUser.role}{currentUser.gradeLevel ? ` - ${currentUser.gradeLevel}` : ''}</p>
           </div>
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-muted hover:text-red-400 hover:bg-sidebar-accent/50 transition-colors">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-muted hover:text-destructive hover:bg-sidebar-accent/50 transition-colors">
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </button>
