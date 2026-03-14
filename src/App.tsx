@@ -17,6 +17,9 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const currentUser = useStore(s => s.currentUser);
+  const authInitializing = useStore(s => s.authInitializing);
+
+  if (authInitializing) return null;
   if (!currentUser) return <Navigate to="/login" replace />;
   return <DashboardLayout>{children}</DashboardLayout>;
 };

@@ -1,28 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore, Role, GradeLevel } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserPlus, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 const GRADE_LEVELS: GradeLevel[] = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
 
-const simpleHash = (str: string): string => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return 'h_' + Math.abs(hash).toString(36) + '_' + btoa(str).slice(0, 8);
-};
-
 const Register = () => {
   const navigate = useNavigate();
   const register = useStore(s => s.register);
+  const currentUser = useStore(s => s.currentUser);
+  const authInitializing = useStore(s => s.authInitializing);
   const [form, setForm] = useState({
     fullName: '',
     username: '',
@@ -35,7 +27,13 @@ const Register = () => {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (!authInitializing && currentUser) {
+      navigate('/dashboard');
+    }
+  }, [authInitializing, currentUser, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.role) { toast.error('Please select a role'); return; }
     if (form.role === 'teacher' && !form.gradeLevel) { toast.error('Please select a grade level'); return; }
@@ -43,11 +41,11 @@ const Register = () => {
     if (form.password !== form.confirmPassword) { toast.error('Passwords do not match'); return; }
 
     setLoading(true);
-    const result = register({
+    const result = await register({
       fullName: form.fullName,
       username: form.username,
       email: form.email,
-      passwordHash: simpleHash(form.password),
+      password: form.password,
       role: form.role as Role,
       gradeLevel: form.role === 'teacher' ? form.gradeLevel as GradeLevel : undefined,
     });

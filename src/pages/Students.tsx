@@ -56,7 +56,7 @@ const Students = () => {
       setQrCache(newCache);
     };
     gen();
-  }, [students, generateQR]);
+  }, [students, generateQR, qrCache]);
 
   const filtered = useMemo(() => {
     return students.filter(s => {
@@ -89,20 +89,21 @@ const Students = () => {
     setDialogOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.gradeLevel || !form.gender) { toast.error('Please fill all fields'); return; }
 
     if (editingStudent) {
-      updateStudent(editingStudent.id, {
+      const result = await updateStudent(editingStudent.id, {
         studentId: form.studentId,
         fullName: form.fullName,
         gradeLevel: form.gradeLevel as GradeLevel,
         gender: form.gender as Gender,
       });
+      if (!result.success) { toast.error(result.error); return; }
       toast.success('Student updated');
     } else {
-      const result = addStudent({
+      const result = await addStudent({
         studentId: form.studentId,
         fullName: form.fullName,
         gradeLevel: form.gradeLevel as GradeLevel,
@@ -114,9 +115,13 @@ const Students = () => {
     setDialogOpen(false);
   };
 
-  const handleDelete = (s: Student) => {
+  const handleDelete = async (s: Student) => {
     if (window.confirm(`Delete ${s.fullName}?`)) {
-      deleteStudent(s.id);
+      const result = await deleteStudent(s.id);
+      if (!result.success) {
+        toast.error(result.error || 'Failed to delete student');
+        return;
+      }
       toast.success('Student deleted');
     }
   };

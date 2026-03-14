@@ -23,16 +23,20 @@ const Scanner = () => {
     if (scannerRef.current) {
       try {
         await scannerRef.current.stop();
-      } catch { }
+      } catch {
+        /* ignore */
+      }
       try {
         scannerRef.current.clear();
-      } catch { }
+      } catch {
+        /* ignore */
+      }
       scannerRef.current = null;
     }
     setScanning(false);
   }, []);
 
-  const handleScan = useCallback((decodedText: string) => {
+  const handleScan = useCallback(async (decodedText: string) => {
     try {
       const data = JSON.parse(decodedText);
       if (!data.studentId || !data.name || !data.grade) {
@@ -45,7 +49,7 @@ const Scanner = () => {
         setResult({ type: 'error', message: `Student ${data.studentId} not found in your grade` });
         return;
       }
-      const res = recordAttendance(data.studentId, data.name, data.grade as GradeLevel);
+      const res = await recordAttendance(data.studentId, data.name, data.grade as GradeLevel);
       if (res.success) {
         setResult({ type: 'success', message: `Attendance recorded for ${data.name}`, status: res.status });
         toast.success('Attendance recorded successfully.');
@@ -73,7 +77,7 @@ const Scanner = () => {
         () => { } // ignore errors during scanning
       );
       setScanning(true);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Scanner error:', err);
       toast.error('Camera access denied or not available. Please allow camera permission.');
     }

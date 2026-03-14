@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -10,15 +10,23 @@ import { toast } from 'sonner';
 const Login = () => {
   const navigate = useNavigate();
   const login = useStore(s => s.login);
-  const [username, setUsername] = useState('');
+  const currentUser = useStore(s => s.currentUser);
+  const authInitializing = useStore(s => s.authInitializing);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (!authInitializing && currentUser) {
+      navigate('/dashboard');
+    }
+  }, [authInitializing, currentUser, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const result = login(username, password);
+    const result = await login(email, password);
     setLoading(false);
     if (result.success) {
       toast.success('Welcome back!');
@@ -42,8 +50,8 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" required value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter your username" />
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter your email" />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
