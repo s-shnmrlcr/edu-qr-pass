@@ -94,15 +94,14 @@ const Scanner = () => {
 
       {/* Scanner viewport */}
       <div className="bg-primary rounded-2xl overflow-hidden shadow-lg">
-        <div ref={containerRef} className="relative">
-          <div id="qr-reader" className="w-full" style={{ minHeight: scanning ? 'auto' : '300px' }}>
-            {!scanning && (
-              <div className="flex flex-col items-center justify-center py-20 text-primary-foreground/60">
-                <Camera className="w-16 h-16 mb-4" />
-                <p className="text-sm">Camera preview will appear here</p>
-              </div>
-            )}
-          </div>
+        <div ref={containerRef} className="relative" style={{ minHeight: '300px' }}>
+          {!scanning && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-primary-foreground/60 z-10">
+              <Camera className="w-16 h-16 mb-4" />
+              <p className="text-sm">Camera preview will appear here</p>
+            </div>
+          )}
+          <div id="qr-reader" className="w-full" />
         </div>
         <div className="p-4 flex justify-center">
           {!scanning ? (
