@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useStore, GradeLevel } from '@/lib/store';
 import { Html5Qrcode } from 'html5-qrcode';
 import { ScanLine, Camera, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
