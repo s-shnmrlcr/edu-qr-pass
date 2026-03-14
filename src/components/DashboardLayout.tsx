@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '@/lib/store';
 import { LayoutDashboard, Users, ScanLine, ClipboardList, Settings, LogOut, Menu, X, GraduationCap } from 'lucide-react';
