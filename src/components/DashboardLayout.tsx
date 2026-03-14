@@ -20,10 +20,11 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const logout = useStore(s => s.logout);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!currentUser) {
-    navigate('/login');
-    return null;
-  }
+  useEffect(() => {
+    if (!currentUser) navigate('/login');
+  }, [currentUser, navigate]);
+
+  if (!currentUser) return null;
 
   const handleLogout = () => {
     logout();
