@@ -10,8 +10,20 @@ const GRADE_LEVELS: GradeLevel[] = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10',
 
 const AttendanceLogs = () => {
   const currentUser = useStore(s => s.currentUser);
-  const attendance = useStore(s => s.getAttendanceForUser());
-  const students = useStore(s => s.getStudentsForUser());
+  const allAttendance = useStore(s => s.attendance);
+  const allStudents = useStore(s => s.students);
+  
+  const attendance = useMemo(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'admin') return allAttendance;
+    return allAttendance.filter(a => a.gradeLevel === currentUser.gradeLevel);
+  }, [allAttendance, currentUser]);
+
+  const students = useMemo(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'admin') return allStudents;
+    return allStudents.filter(s => s.gradeLevel === currentUser.gradeLevel);
+  }, [allStudents, currentUser]);
 
   const [search, setSearch] = useState('');
   const [filterGrade, setFilterGrade] = useState<string>('all');
