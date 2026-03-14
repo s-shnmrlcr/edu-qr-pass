@@ -89,6 +89,22 @@ const mapSupabaseUser = (supabaseUser: SupabaseUser | null): User | null => {
   };
 };
 
+const getEmailForUsername = async (username: string): Promise<string | null> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('username', username)
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.warn('Failed to resolve username to email', error.message);
+    return null;
+  }
+
+  return data?.email ?? null;
+};
+
 interface StudentRow {
   id: string;
   student_id: string;
@@ -225,6 +241,14 @@ export const useStore = create<AppState>((set, get) => {
       if (error) return { success: false, error: error.message };
 
       if (data.user) {
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          email: userData.email,
+          username: userData.username,
+          role: userData.role,
+          grade_level: userData.gradeLevel,
+        });
+
         const user = mapSupabaseUser(data.user);
         await syncUserData(user);
       }
@@ -232,7 +256,11 @@ export const useStore = create<AppState>((set, get) => {
       return { success: true };
     },
 
-    login: async (email, password) => {
+    login: async (emailOrUsername, password) => {
+      const email = emailOrUsername.includes('@')
+        ? emailOrUsername
+        : (await getEmailForUsername(emailOrUsername)) ?? emailOrUsername;
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
