@@ -3,8 +3,21 @@ import { Users, UserCheck, Clock, UserX } from 'lucide-react';
 import { useMemo } from 'react';
 
 const Dashboard = () => {
-  const students = useStore(s => s.getStudentsForUser());
-  const attendance = useStore(s => s.getAttendanceForUser());
+  const currentUser = useStore(s => s.currentUser);
+  const allStudents = useStore(s => s.students);
+  const allAttendance = useStore(s => s.attendance);
+
+  const students = useMemo(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'admin') return allStudents;
+    return allStudents.filter(s => s.gradeLevel === currentUser.gradeLevel);
+  }, [allStudents, currentUser]);
+
+  const attendance = useMemo(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'admin') return allAttendance;
+    return allAttendance.filter(a => a.gradeLevel === currentUser.gradeLevel);
+  }, [allAttendance, currentUser]);
 
   const today = new Date().toLocaleDateString('en-CA');
 

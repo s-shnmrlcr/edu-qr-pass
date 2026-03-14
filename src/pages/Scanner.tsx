@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useStore, GradeLevel } from '@/lib/store';
 import { Html5Qrcode } from 'html5-qrcode';
 import { ScanLine, Camera, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 const Scanner = () => {
-  const students = useStore(s => s.getStudentsForUser());
+  const currentUser = useStore(s => s.currentUser);
+  const allStudents = useStore(s => s.students);
+  const students = useMemo(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'admin') return allStudents;
+    return allStudents.filter(s => s.gradeLevel === currentUser.gradeLevel);
+  }, [allStudents, currentUser]);
   const recordAttendance = useStore(s => s.recordAttendance);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error' | 'duplicate'; message: string; status?: string } | null>(null);

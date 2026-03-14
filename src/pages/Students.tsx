@@ -14,7 +14,12 @@ const GENDERS: Gender[] = ['Male', 'Female'];
 
 const Students = () => {
   const currentUser = useStore(s => s.currentUser);
-  const students = useStore(s => s.getStudentsForUser());
+  const allStudents = useStore(s => s.students);
+  const students = useMemo(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'admin') return allStudents;
+    return allStudents.filter(s => s.gradeLevel === currentUser.gradeLevel);
+  }, [allStudents, currentUser]);
   const addStudent = useStore(s => s.addStudent);
   const updateStudent = useStore(s => s.updateStudent);
   const deleteStudent = useStore(s => s.deleteStudent);
